@@ -7,6 +7,7 @@ import { feed, float, penalty, otherName } from './feedback.js';
 import { errandDone } from './errands.js';
 import { act } from './events.js';
 import { startStill } from './potg.js';
+import { receiptTempts, distractKid } from './kid.js';
 
 export function freeSeatNear(x, y){
   let best = null, bd = 34;
@@ -57,7 +58,10 @@ export function doToss(x, y){
 }
 export function land(f){
   G.litter.push({x:f.tx, y:f.ty, r:f.r, kind:'receipt'}); if (G.litter.length > 40) G.litter.shift();
+  const tempting = receiptTempts(f.tx, f.ty);
+  distractKid(f.tx, f.ty);
   if (f.remote) return;
+  if (tempting) { errandDone('kid'); float(f.tx, f.ty - 26, 'the kid wants it', 'good'); feed('The kid ran off after your receipt.', 'good'); }
   let best = null, bd = 1e9;
   for (const n of G.world.npcs) { const d = Math.hypot(n.rx - f.tx, n.ry - f.ty); if (d < bd) { bd = d; best = {name:n.name, npc:n}; } }
   for (const o of G.others.values()) { if (o.gone || o.done) continue; const d = Math.hypot(o.rx - f.tx, o.ry - f.ty); if (d < bd) { bd = d; best = {name:otherName(o.id), other:o}; } }

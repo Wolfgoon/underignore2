@@ -51,6 +51,7 @@ function pickSpot(n, avoid){
     let sc = 0;
     const ev = w.evt;
     if (ev && ev.k === 'phone' && Math.hypot(ev.x - c.x, ev.y - c.y) < 120) sc -= 400;
+    if (ev && ev.k === 'kid' && Math.hypot(ev.x - c.x, ev.y - c.y) < 150) sc -= 300;
     if (inRect(r, c.x, c.y, 30)) sc -= 1000;
     for (const o of w.npcs) if (o !== n) {
       const d = Math.min(Math.hypot(o.x - c.x, o.y - c.y), Math.hypot(o.tx - c.x, o.ty - c.y));

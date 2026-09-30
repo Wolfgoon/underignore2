@@ -20,6 +20,7 @@ export function updateHUD(){
   if (p.called) tags.push('your number\u2019s been called');
   if (p.inPoint) tags.push('you\u2019re involved');
   else if (p.nearPhone) tags.push('next to the ringing phone');
+  else if (p.kidSees) tags.push('a kid is staring at you');
   else if (p.watched) tags.push('someone\u2019s looking');
   else { if (p.stillT > 1) tags.push('still \u00d72'); if (p.unpT > 0) tags.push('unmarked \u00d71.5'); if (p.dark) tags.push('lights out \u00d71.5'); if (p.seated && !p.rising) tags.push('sitting \u00d71.25'); }
   setText(hud.rate, (p.rate > 0 ? `+${p.rate.toFixed(1)} per second` : 'Earning nothing') + (tags.length ? `, ${tags.join(', ')}` : ''));
@@ -31,7 +32,7 @@ export function updateHUD(){
   const ev = w.evt, bannerEl = hud.banner;
   if (ev) {
     const left = Math.max(0, Math.ceil(ev.t));
-    setText(bannerEl, ev.k === 'call' ? (p.called ? `Now serving ${ev.no}. That\u2019s you. ${left}s` : `Now serving ${ev.no}. ${left}s`) : ev.k === 'phone' ? `Phone ringing. ${left}s` : `Lights out. ${left}s`);
+    setText(bannerEl, ev.k === 'call' ? (p.called ? `Now serving ${ev.no}. That\u2019s you. ${left}s` : `Now serving ${ev.no}. ${left}s`) : ev.k === 'phone' ? `Phone ringing. ${left}s` : ev.k === 'kid' ? `A kid is loose. ${left}s` : `Lights out. ${left}s`);
     bannerEl.hidden = false; setCls(bannerEl, 'mine', p.called);
   } else if (!bannerEl.hidden) bannerEl.hidden = true;
   setText(hud.place, `${ordinal(1 + ahead)} of ${w.npcs.length + others.length + 1}`);

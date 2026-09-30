@@ -1,5 +1,5 @@
 // Your side of every tick: moving, abilities wearing off, noticing and being noticed, and scoring.
-import { WALL, MY_RANGE, MY_NOTICE_TIME, COMMON_LINES, zeroLines, rangeOf, seenOf } from '../data.js';
+import { WALL, KID_RANGE, MY_RANGE, MY_NOTICE_TIME, COMMON_LINES, zeroLines, rangeOf, seenOf } from '../data.js';
 import { rand, clamp, angDiff, esc, isTouch, reduceMotion } from '../util.js';
 import { W, H, setDark, pushOut, sees } from '../layout.js';
 import { acct } from '../account.js';
@@ -10,6 +10,7 @@ import { act } from './events.js';
 import { freeSeatNear, land } from './abilities.js';
 import { startStill, endStill } from './potg.js';
 import { endMatch } from './end.js';
+import { kidEvent, smoothKid } from './kid.js';
 
 export function clientUpdate(dt){
   const p = G.me, z = G.z, w = G.world;
@@ -138,6 +139,12 @@ export function clientUpdate(dt){
     const d = Math.hypot(p.x - o.rx, p.y - o.ry);
     if (d < 22) { const ux = d ? (p.x - o.rx) / d : 1, uy = d ? (p.y - o.ry) / d : 0; p.x += ux * (22 - d); p.y += uy * (22 - d); }
   }
+  const kid = kidEvent();
+  if (kid) {
+    smoothKid(kid, dt, lerp);
+    p.kidSees = !blended && !kid.chase && sees(kid, p.x, p.y, KID_RANGE);
+    if (p.kidSees) watched = true;
+  } else p.kidSees = false;
   p.watched = watched;
 
   let rate = 0;
@@ -148,7 +155,8 @@ export function clientUpdate(dt){
   p.ghostT = !watched && !inPoint && !nearPhone ? p.ghostT + dt : 0;
   if (p.ghostT >= 20) errandDone('ghost20');
   if (dark) { p.darkEarned += rate * dt; if (p.darkEarned >= 40) errandDone('dark'); }
-  if (inPoint) p.everInPoint = true;
+  if (inPoint) { p.everInPoint = true; G.stats.pointTime += dt; }
+  if (p.stillT > 1) G.stats.stillTime += dt;
   p.rate = rate; p.score += rate * dt;
 
   for (let i = G.flying.length - 1; i >= 0; i--) { const f = G.flying[i]; f.t += dt; if (f.t >= f.dur) { G.flying.splice(i, 1); land(f); } }

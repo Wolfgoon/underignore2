@@ -5,6 +5,7 @@ import { G } from './state.js';
 import { feed, toast, float, mkBubble, penalty, npcName, otherName, who } from './feedback.js';
 import { errandDone } from './errands.js';
 import { handleAction } from './host.js';
+import { KID_COST } from './kid.js';
 
 // Event targets are player ids, or '#3' for the computer player at index 3.
 function evTargetName(id){
@@ -85,6 +86,7 @@ export function processEvent(ev){
         else { toast(`Now serving ${b}. Everyone\u2019s looking around to see who it is.`); feed(`Now serving <b>${b}</b>. Anyone moving looks suspicious.`, ''); }
       } else if (a === 'phone') { toast('Someone\u2019s phone is ringing. Everyone\u2019s looking at it.'); feed('A phone is ringing. Don\u2019t be near it.', ''); }
       else if (a === 'dark') { toast('The lights went out. Nobody can see much.'); feed('Lights out. Glances are short and Disinterest is \u00d71.5.', ''); }
+      else if (a === 'kid') { toast('Someone brought their kid. Kids notice everything.'); feed('A kid is loose. Stay out of its sight, or toss it a receipt.', 'bad'); }
       break;
     case 'cs':
       if (a === G.myId) { me.score += 40; G.stats.calls++; errandDone('call'); float(me.x, me.y - 30, '+40 pretended it wasn\u2019t you', 'good'); feed(`Nobody worked out that number ${b} was you. +40`, 'good'); }
@@ -94,7 +96,11 @@ export function processEvent(ev){
       if (a === G.myId) { G.stats.callsFound++; loseScore(penalty(25), 'they worked it out'); feed(`Everyone worked out that number ${b} was you.`, 'bad'); }
       else feed(`Number ${b} was <b>${esc(evTargetName(a))}</b>. Everyone knows now.`, '');
       break;
-    case 'ee': feed(a === 'phone' ? 'The phone stopped ringing.' : 'The lights came back on.', ''); break;
+    case 'ee': feed({phone:'The phone stopped ringing.', dark:'The lights came back on.', kid:'The kid got bored and was taken outside.'}[a] || '', ''); break;
+    case 'kp':
+      if (mine) { G.stats.pointedAt++; loseScore(penalty(KID_COST), 'a kid pointed at you'); feed('A kid pointed at you and yelled \u201cWHO\u2019S THAT?\u201d', 'bad'); }
+      else feed(`The kid pointed at <b>${esc(evTargetName(a))}</b>.`, '');
+      break;
   }
 }
 export function consumeEvents(){

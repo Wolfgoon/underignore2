@@ -44,6 +44,17 @@ export function buildLayout(mapId, portrait){
       ob('row', r.x, r.y, r.w, r.h, false);
       for (let x = r.x + 20; x < r.x + r.w - 10; x += 38) { SPOTS.push({x, y:r.y - 16, face:-Math.PI / 2, seat:true}); SPOTS.push({x, y:r.y + r.h + 16, face:Math.PI / 2, seat:true}); }
     }
+  } else if (MAP_ID === 'postoffice') {
+    // Rope lanes zig-zag in front of the counter, and a wall of PO boxes blocks glances on the right.
+    wallChairs(false);
+    ob('plant', 57, 57, 30, 30, true);
+    ob('poboxes', W - WALL - 34, 130, 30, H - (portrait ? 360 : 300), true);
+    ob('kiosk', W * 0.25 - 17, H * 0.62 - 17, 34, 34, true);
+    SPOTS.push({x:W * 0.25, y:H * 0.62 + 40, face:-Math.PI / 2});
+    const lanes = [{y:185, x0:W / 2 - 200, x1:W / 2 + 140}, {y:245, x0:W / 2 - 140, x1:W / 2 + 200}];
+    for (const l of lanes) ob('rope', l.x0, l.y - 3, l.x1 - l.x0, 6, false);
+    // Standing in line, facing the counter.
+    for (const y of [155, 215, 275]) for (let x = W / 2 - 150; x <= W / 2 + 150; x += 60) SPOTS.push({x, y, face:-Math.PI / 2});
   } else {
     wallChairs(false);
     const top = 110, bot = H - 130;

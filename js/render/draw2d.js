@@ -1,6 +1,6 @@
 // The 2D layer. With 3D on, it's the glass floor you look up through plus everything drawn on it
 // (the Point, glances, names, bubbles). Without 3D, it draws the whole room flat.
-import { WALL, CONE, MAPS, MY_RANGE, MY_NOTICE_TIME, rangeOf } from '../data.js';
+import { WALL, CONE, MAPS, MY_RANGE, MY_NOTICE_TIME, KID_RANGE, rangeOf } from '../data.js';
 import { TAU, FONT, clamp, rand, isTouch, reduceMotion } from '../util.js';
 import { W, H, MAP_ID, CHAIRS, OBST, TALL, rayHit, lightMul } from '../layout.js';
 import { acct } from '../account.js';
@@ -68,6 +68,19 @@ function drawObstacle(c, o){
       }
       break;
     }
+    case 'rope': {
+      // Seen from below: the base of each post, and the rope's shadow between them.
+      const n = Math.max(1, Math.round(o.w / 68));
+      c.strokeStyle = sh(0.2); c.lineWidth = 3; c.beginPath(); c.moveTo(o.x, cy); c.lineTo(o.x + o.w, cy); c.stroke();
+      for (let k = 0; k <= n; k++) { c.fillStyle = sh(0.12); dot(o.x + o.w * k / n, cy, 9); c.fillStyle = sh(0.5); dot(o.x + o.w * k / n, cy, 4); }
+      break;
+    }
+    case 'poboxes':
+      c.fillStyle = sh(0.34); rr(c, o.x, o.y, o.w, o.h, 3); c.fill();
+      c.strokeStyle = sh(0.5); c.lineWidth = 1; c.beginPath();
+      for (let y = o.y + 14; y < o.y + o.h; y += 14) { c.moveTo(o.x + 3, y); c.lineTo(o.x + o.w - 3, y); }
+      c.moveTo(cx, o.y + 3); c.lineTo(cx, o.y + o.h - 3); c.stroke();
+      break;
     case 'table':
       c.fillStyle = sh(0.13); rr(c, o.x, o.y, o.w, o.h, 3); c.fill();
       c.fillStyle = sh(0.5); [[o.x + 3, o.y + 3], [o.x + o.w - 9, o.y + 3], [o.x + 3, o.y + o.h - 9], [o.x + o.w - 9, o.y + o.h - 9]].forEach(([x, y]) => c.fillRect(x, y, 6, 6));
@@ -266,6 +279,20 @@ function drawNames(c, others){
   c.font = `700 ${nfs}px ${FONT}`; c.fillStyle = `rgba(${G.rgb},.9)`;
   c.fillText(p.blendT > 0 ? `${myName} (unnoticeable)` : p.called ? `${myName} (number ${G.world.evt.no})` : p.seated ? `${myName} (sitting)` : `${myName} (you)`, p.x, p.y + 24);
 }
+// The kid: a small, very alert pair of shoes that light up, and a glance nobody wants to be in.
+function drawKid(c, kid, flat){
+  if (kid.rx == null) return;
+  wedge(c, kid.rx, kid.ry, kid.rf, KID_RANGE, col.dangerRgb, kid.chase ? 0.12 : 0.34);
+  if (flat) {
+    c.save(); c.translate(kid.rx, kid.ry); c.scale(0.6, 0.6);
+    drawFeet(c, 0, 0, kid.rf, kid.step || 0, true, '240,200,70', 1, false, false);
+    c.restore();
+  } else shadowAt(c, kid.rx, kid.ry);
+  const blink = reduceMotion || Math.sin(G.t * 14) > 0;
+  if (blink) { c.fillStyle = 'rgba(255,90,60,.8)'; c.beginPath(); c.arc(kid.rx, kid.ry, 3, 0, TAU); c.fill(); }
+  c.font = `700 ${clamp(10 / scale * 0.72, 10, 17)}px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'top';
+  c.fillStyle = `rgba(${col.dangerRgb},.85)`; c.fillText(kid.chase ? 'a kid (busy)' : 'a kid', kid.rx, kid.ry + 16);
+}
 function drawFlying(c){
   for (const f of G.flying) {
     const u = f.t / f.dur, x = f.sx + (f.tx - f.sx) * u, y = f.sy + (f.ty - f.sy) * u, h = Math.sin(Math.PI * u), s = 1 - 0.5 * h;
@@ -331,6 +358,7 @@ export function render(){
   drawGlances(c, others);
   drawPeople(c, others, flat);
   drawNames(c, others);
+  if (ev && ev.k === 'kid') drawKid(c, ev, flat);
   drawFlying(c);
   if (mouse.in && !isTouch && !G.paused) drawAim(c, others);
   if (flat) drawWalls(c);

@@ -57,7 +57,7 @@ function newGame(mode, myId, m){
     world:{mid:m.mid, lay:m.lay, seed:m.seed, cast:m.cast, map:m.mapId, evt:null, evtNext:rand(13, 17), lastEvt:null, callNo:30 + ((Math.random() * 40) | 0), served:0,
       npcs:[], point:null, pointT:18, left:MATCH_LEN, exc:0, ph:'play', why:'', events:[], q:0, pairCool:{}, crowd:null, crowdTick:0, crowdCool:4},
     others:new Map(), litter:[], flying:[], floats:[], flicker:0,
-    stats:{noticed:0, ignored:0, missed:0, hit:0, smalltalk:0, warmups:0, littered:0, repaired:0, nevermind:0, noticedOthers:0, eye:0, called:0, calls:0, callsFound:0, errands:0},
+    stats:{noticed:0, ignored:0, missed:0, hit:0, smalltalk:0, warmups:0, littered:0, repaired:0, nevermind:0, noticedOthers:0, eye:0, called:0, calls:0, callsFound:0, errands:0, pointedAt:0, pointTime:0, stillTime:0},
     errands:pickErrands(), behind:new Set(),
     met:new Set(), still:{start:0, active:true, best:0, pending:true}, hints:[], warned10:false };
 }

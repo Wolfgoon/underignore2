@@ -4,6 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Underignore</title>
+<meta name="description" content="The exact opposite of Overwatch. Zero players, zero heroes, zero shooting. Sit in a beige waiting room and try very hard not to be involved.">
+<meta name="theme-color" content="#d5ded3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b201c" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Underignore">
+<meta property="og:description" content="The exact opposite of Overwatch. Zero players, zero heroes, zero shooting.">
+<meta property="og:url" content="https://wolfgoon.github.io/underignore2/">
+<meta property="og:image" content="https://wolfgoon.github.io/underignore2/images/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" async></script>
@@ -18,9 +33,9 @@
   <section class="screen" id="lobby">
     <div class="wrap">
       <h1 class="logo" aria-label="Underignore">
-        <span class="logo-word">Underignore</span>
+        <span class="logo-word"><img class="logo-mark" src="images/logo.png" alt="">Underignore</span>
         <span class="logo-rule"></span>
-        <span class="logo-reflect" aria-hidden="true"><span>Underignore</span></span>
+        <span class="logo-reflect" aria-hidden="true"><span><img class="logo-mark" src="images/logo.png" alt="">Underignore</span></span>
       </h1>
       <p class="tag">The exact opposite of Overwatch, in every way. Zero players, zero heroes, zero shooting. You sit in a beige waiting room and try very hard not to be involved.
         <small>Zero versus zero. Watched from underneath the floor.</small></p>
@@ -32,7 +47,7 @@
       </div>
       <p class="fine">Underignore is pay-to-not-play. $0.00 has been deposited into your account for not downloading it.</p>
       <button class="link" id="btnForget">Reset rank and colour</button>
-      <p class="fine">Version 7: random names and jobs, errands in a tab. Updated 30 September 2026.</p>
+      <p class="fine">Version 8: the post office, a loose kid, and medals for doing the least. Updated 30 September 2026.</p>
     </div>
   </section>
 
@@ -66,9 +81,10 @@
         <dt>Courtesy</dt><dd>The opposite of shields. It protects other people from you when you bump into them.</dd>
         <dt>Other players</dt><dd>In a room with friends, everyone shares the Point and the Excitement meter, and you notice each other the same way you notice anyone else. <span>If Excitement fills up, Undertime ends it for everybody.</span></dd>
         <dt>Everyone else</dt><dd>The other people in the room are played by the computer, usually as the Zeroes nobody has. They follow the same rules: they stay out of the Point, stand still, do their own Warmups, and try to notice whoever is ahead. <span>They can only dodge your glance if they can see you looking, so come at them from behind.</span></dd>
-        <dt>Rooms</dt><dd>Each match is at the DMV, a dentist’s office or a laundromat. Tall things like kiosks, fish tanks and washing machines block glances, yours included.</dd>
+        <dt>Rooms</dt><dd>Each match is at the DMV, a dentist’s office, a laundromat or the post office. Tall things like kiosks, fish tanks, washing machines and walls of PO boxes block glances, yours included.</dd>
         <dt>Now serving</dt><dd>Every so often the desk calls a number. If it’s yours, don’t get noticed for 7 seconds and you get +40. <span>Everyone else starts looking around, and anyone moving looks suspicious.</span></dd>
         <dt>A phone rings</dt><dd>Everyone turns to look at it. Don’t stand near it. <span>With everyone facing the phone, it’s a good moment to notice people from behind.</span></dd>
+        <dt>A loose kid</dt><dd>Someone brought their kid. It wanders around and points at anyone it can see, which costs Disinterest and gets everyone excited. You can’t notice a kid. <span>Toss a receipt near it and it runs off after that instead.</span></dd>
         <dt>Lights out</dt><dd>For 6 seconds glances are much shorter and everyone earns 1.5×.</dd>
         <dt><span class="kbd">F</span></dt><dd>Sit. Stand next to a free chair and sit down to earn 1.25× and be harder to notice, but getting up takes a second. <span>The computer players sit too, so chairs get taken.</span></dd>
         <dt>Errands</dt><dd>Every match gives you three optional errands. Open the Errands tab at the top, or press Tab, to see them. Each one pays extra Disinterest.</dd>
@@ -83,7 +99,7 @@
 
   <section class="screen" id="queue">
     <div class="q">
-      <div class="spinner"></div>
+      <img class="spinner" src="images/logo.png" alt="">
       <p id="qText">Searching for 0 players</p>
       <p class="fine" id="qSub">Estimated wait: whenever</p>
     </div>
@@ -182,6 +198,7 @@
         <div class="results">
           <div class="big-score"><span class="k">Disinterest earned</span><span class="v" id="endScore">0</span></div>
           <div class="rankline" id="endRank"></div>
+          <span class="k">Medals</span><ul class="medals" id="endMedals"></ul>
           <span class="k" id="endPlace">Least involved in the room</span>
           <ol class="standings" id="endStandings"></ol>
           <dl class="stats" id="endStats"></dl>

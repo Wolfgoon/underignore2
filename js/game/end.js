@@ -26,6 +26,24 @@ export function renderStandings(){
   $('#endPlace').textContent = place === 1 ? 'You were the least involved person in the room.' : `You finished ${ordinal(place)} least involved out of ${table.length}.`;
   $('#endStandings').innerHTML = table.map(r => `<li class="${r.me ? 'me' : ''}"><span>${esc(r.name)}</span><b>${r.score}</b></li>`).join('');
 }
+// Overwatch hands out medals for doing the most. These are for doing the least.
+// tier() gives gold at or under g, silver at or under sv, bronze at or under b.
+function medals(st){
+  const tier = (v, g, sv, b) => v <= g ? 'gold' : v <= sv ? 'silver' : v <= b ? 'bronze' : 'none';
+  const still = st.stillTime;
+  return [
+    ['gold', '0', 'eliminations'],
+    [tier(st.pointTime, 0, 3, 8), st.pointTime.toFixed(1) + 's', 'objective time'],
+    [still >= 40 ? 'gold' : still >= 20 ? 'silver' : still >= 8 ? 'bronze' : 'none', still.toFixed(0) + 's', 'spent standing perfectly still'],
+    [tier(st.smalltalk, 0, 1, 2), String(st.smalltalk), 'conversations endured'],
+    [tier(st.noticed, 0, 1, 3), String(st.noticed), 'times anyone noticed you'],
+    [tier(st.pointedAt, 0, 1, 2), String(st.pointedAt), 'times a child pointed at you']
+  ];
+}
+function renderMedals(st){
+  $('#endMedals').innerHTML = medals(st).map(([m, v, label]) =>
+    `<li><span class="medal ${m}" role="img" aria-label="${m === 'none' ? 'No' : m} medal"></span><span><b>${v}</b><small>${label}</small></span></li>`).join('');
+}
 export function endMatch(reason){
   if (!G || G.over) return;
   // Errands that can only be judged at the end.
@@ -65,6 +83,7 @@ export function endMatch(reason){
   const rows = [['People you noticed', st.noticedOthers], ['Eye contact incidents', st.eye], ['Times noticed', st.noticed], ['Times not noticed', st.ignored],
     ['People who decided not to say anything', st.nevermind], ['Feet missed on purpose', st.missed], ['Feet accidentally hit', st.hit],
     ['Small talk endured', st.smalltalk], ['Errands done', `${st.errands} of ${G.errands.length}`], ['Warmups where nothing happened', st.warmups], ['Times your number was called', st.called], ['Times you got away with it', st.calls], z.repairs ? ['Litter cleaned up', st.repaired] : ['Receipts littered', st.littered], ['Longest stillness', G.still.best.toFixed(1) + 's']];
+  renderMedals(st);
   $('#endStats').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   const met = [...G.met];
   $('#endForgot').innerHTML = met.length

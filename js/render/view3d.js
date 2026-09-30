@@ -118,6 +118,18 @@ function addFurniture(o, M){
       }
       break;
     }
+    case 'rope': {
+      const n = Math.max(1, Math.round(o.w / 68));
+      for (let k = 0; k <= n; k++) {
+        const px = o.x + o.w * k / n;
+        vCyl('base', 16, 3, px, 1.5, cz, M.metal); vCyl('post', 4, 36, px, 19, cz, M.metal); vCyl('knob', 7, 4, px, 38, cz, M.brass);
+      }
+      vBox('rope', o.w, 3, 3, cx, 33, cz, M.rope);
+      break;
+    }
+    case 'poboxes':
+      vBox('poboxes', o.w, 126, o.h, cx, 63, cz, M.brass);
+      break;
     case 'table':
       vBox('tabletop', o.w, 3, o.h, cx, 36, cz, M.table);
       for (const lx of [o.x + 4, o.x + o.w - 4]) for (const lz of [o.y + 4, o.y + o.h - 4]) vBox('leg', 3, 34, 3, lx, 17, lz, M.metal);
@@ -138,7 +150,7 @@ export function buildScene(){
       desk:vMat('176,164,140'), dark:vMat('46,48,52'), leaf:vMat('84,126,80'), pot:vMat('164,98,70'), cooler:vMat('206,208,210'), bottle:vMat('120,176,226', {alpha:0.6}),
       kiosk:vMat('70,74,82'), screen:vMat('180,226,255', {emissive:0.9}), wood:vMat('132,100,74'), water:vMat('70,140,184', {alpha:0.45}),
       glass:vMat('170,215,235', {alpha:0.22, emissive:0.2}), fish:vMat('240,140,40', {emissive:0.5}), washer:vMat('226,228,224'), door:vMat('120,150,172'),
-      table:vMat('194,184,164'), tube:vMat('255,250,236', {emissive:1})
+      table:vMat('194,184,164'), tube:vMat('255,250,236', {emissive:1}), rope:vMat('150,40,52'), brass:vMat('176,150,92')
     };
     M.tube.disableLighting = true;
     const WH = 140;
@@ -211,6 +223,9 @@ export function render3D(){
     o.rx, o.ry, o.rf, o.step, o.mv, !!o.si, o.bl ? 0.28 : 1, o.rgb);
   put('me', () => makePerson('me', G.rgb, shirtFor(acct.zero, acct.fade), SKINS[hashStr(acct.name) % SKINS.length]),
     p.x, p.y, p.face, p.step, p.moving, !!p.seated && !(p.rising && p.rising < 0.45), p.blendT > 0 ? 0.28 : 1, G.rgb);
+  const kid = w.evt && w.evt.k === 'kid' && w.evt.rx != null ? w.evt : null;
+  if (kid) put('kid', () => { const P = makePerson('kid', '240,200,70', '232,96,84', SKINS[hashStr(w.mid) % SKINS.length]); P.root.scaling.setAll(0.55); return P; },
+    kid.rx, kid.ry, kid.rf, kid.step || 0, true, false, 1, '240,200,70');
   for (const [k, P] of V.people) if (!seen.has(k)) { P.root.dispose(); V.people.delete(k); }
   const ev = w.evt, dark = !!(ev && ev.k === 'dark');
   const fl = dark ? 0.14 : G.flicker > 0 ? (Math.random() < 0.5 ? 0.45 : 0.8) : 1;

@@ -39,9 +39,14 @@ export function applyHostState(hp, initial){
   w.served = Math.max(0, num(hp.sv) | 0);
   const e = hp.ev;
   if (Array.isArray(e) && EVENT_KINDS.includes(e[0])) {
+    const prev = w.evt;
     w.evt = {k:e[0], t:num(e[1]), dur:num(e[2], 6)};
     if (e[0] === 'call') { w.evt.no = num(e[3]) | 0; w.evt.target = typeof e[4] === 'string' ? e[4] : ''; }
     if (e[0] === 'phone') { w.evt.x = clamp(num(e[3]), 0, W); w.evt.y = clamp(num(e[4]), 0, H); }
+    if (e[0] === 'kid') {
+      Object.assign(w.evt, {x:clamp(num(e[3]), 0, W), y:clamp(num(e[4]), 0, H), face:num(e[5]), chase:e[6] ? 1 : 0});
+      if (prev && prev.k === 'kid') Object.assign(w.evt, {rx:prev.rx, ry:prev.ry, rf:prev.rf, step:prev.step});
+    }
   } else w.evt = null;
   if (Array.isArray(hp.pt) && hp.pt.length >= 5) { w.point = {x:num(hp.pt[0]), y:num(hp.pt[1]), w:num(hp.pt[2], 170), h:num(hp.pt[3], 120)}; w.pointT = num(hp.pt[4]); }
   else w.point = null;
@@ -82,9 +87,17 @@ export function netIn(now){
     else { if (!G.hostMissingSince) G.hostMissingSince = now; if (now - G.hostMissingSince > 4000) endMatch('hostleft'); }
   }
 }
+function eventPresence(e){
+  if (!e) return null;
+  const head = [e.k, r1(e.t), e.dur];
+  if (e.k === 'call') return [...head, e.no, e.target];
+  if (e.k === 'phone') return [...head, r1(e.x), r1(e.y)];
+  if (e.k === 'kid') return [...head, r1(e.x), r1(e.y), r2(e.face), e.chase > 0 ? 1 : 0];
+  return head;
+}
 function hostPresence(){
   const w = G.world;
-  return { ph:w.ph, why:w.why || '', lay:w.lay, seed:w.seed, map:w.map, sv:w.served || 0, ev:w.evt ? (w.evt.k === 'call' ? [w.evt.k, r1(w.evt.t), w.evt.dur, w.evt.no, w.evt.target] : w.evt.k === 'phone' ? [w.evt.k, r1(w.evt.t), w.evt.dur, r1(w.evt.x), r1(w.evt.y)] : [w.evt.k, r1(w.evt.t), w.evt.dur]) : null,
+  return { ph:w.ph, why:w.why || '', lay:w.lay, seed:w.seed, map:w.map, sv:w.served || 0, ev:eventPresence(w.evt),
     nn:w.cast.map(c => c.name).join(','), nt:w.cast.map(c => c.title).join(','), nz:w.cast.map(c => c.zid).join(','), left:r1(Math.max(0, w.left)), ex:Math.round(w.exc),
     pt:w.point ? [r1(w.point.x), r1(w.point.y), w.point.w, w.point.h, Math.max(0, Math.ceil(w.pointT))] : null,
     n:w.npcs.map(n => [r1(n.x), r1(n.y), r2(normAng(n.face)), STATES.indexOf(n.state), Math.floor(n.score), n.cool > 0 ? 1 : 0, n.tgt || 0, n.fluster > 0 ? 1 : 0, n.bl > 0 ? 1 : 0, n.state === 'wait' && n.seated ? 1 : 0]),

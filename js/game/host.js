@@ -7,6 +7,7 @@ import { acct } from '../account.js';
 import { G } from './state.js';
 import { newTarget, sidestep } from './npc.js';
 import { endMatch } from './end.js';
+import { startKid, hostUpdateKid } from './kid.js';
 
 export function hostEmit(k, ...args){ const w = G.world; w.q++; w.events.push([w.q, k, ...args]); if (w.events.length > 14) w.events.shift(); }
 export function hostPlayers(){
@@ -54,6 +55,9 @@ function hostStartEvent(players){
     for (let i = 0; i < 40; i++) { x = rand(90, W - 90); y = rand(130, H - 110); if (!insideSolid(x, y, 30) && !inRect(w.point, x, y, 40)) break; }
     w.evt = {k, t:5.5, dur:5.5, x, y};
     hostEmit('es', k, r1(x), r1(y));
+  } else if (k === 'kid') {
+    w.evt = startKid();
+    hostEmit('es', k);
   } else {
     w.evt = {k, t:6, dur:6};
     hostEmit('es', k);
@@ -86,7 +90,9 @@ export function hostUpdate(dt){
   if (w.evt) { w.evt.t -= dt; if (w.evt.t <= 0) hostEndEvent(); }
   else { w.evtNext -= dt; if (w.evtNext <= 0 && w.left > 12) hostStartEvent(players); }
   const evt = w.evt, calling = evt && evt.k === 'call' ? evt : null, ringing = evt && evt.k === 'phone' ? evt : null, dark = !!(evt && evt.k === 'dark');
+  const kid = evt && evt.k === 'kid' ? evt : null;
   setDark(dark);
+  if (kid) w.exc += hostUpdateKid(kid, dt, players);
 
   for (const n of w.npcs) {
     n.cool = Math.max(0, n.cool - dt); n.pcool = Math.max(0, n.pcool - dt); n.fluster = Math.max(0, n.fluster - dt);
@@ -99,8 +105,9 @@ export function hostUpdate(dt){
     // Get out of the Point, a little faster the smarter they are.
     const isCalled = !!calling && calling.target === '#' + n.i;
     const byPhone = !!ringing && Math.hypot(ringing.x - n.x, ringing.y - n.y) < 95;
-    if (idle && (inRect(r, n.x, n.y, 12) || (n.state === 'walk' && inRect(r, n.tx, n.ty, 20)) || byPhone)) {
-      n.pointT += dt; if (n.pointT > n.react) { n.pointT = 0; newTarget(n, byPhone ? ringing : null, true); }
+    const byKid = !!kid && Math.hypot(kid.x - n.x, kid.y - n.y) < 75;
+    if (idle && (inRect(r, n.x, n.y, 12) || (n.state === 'walk' && inRect(r, n.tx, n.ty, 20)) || byPhone || byKid)) {
+      n.pointT += dt; if (n.pointT > n.react) { n.pointT = 0; newTarget(n, byPhone ? ringing : byKid ? kid : null, true); }
     } else n.pointT = 0;
 
     // Being stared at. They only react if they can see the person doing it,

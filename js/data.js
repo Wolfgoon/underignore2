@@ -3,6 +3,7 @@ export const MATCH_LEN = 90;      // seconds
 export const WALL = 22;           // wall thickness, in room units
 export const CONE = 0.62;         // half-angle of everyone's glance
 export const MY_RANGE = 125, MY_NOTICE_TIME = 0.8, NPC_RANGE = 118, NOTICE_COST = 15;
+export const KID_RANGE = 105;    // how far a loose kid can see
 
 export const ROLE_NOTES = {
   Fragile:'The opposite of a Tank: takes all the hits.',
@@ -87,15 +88,16 @@ export const LINES = {
 export const RANKS = [['Grandmaster',0],['Master',250],['Diamond',600],['Platinum',1050],['Gold',1600],['Silver',2250],['Bronze',3000],['Unranked',3900],['Unlisted',5000]];
 export const STATES = ['walk','wait','notice','chat'];
 
-// Three waiting rooms. The furniture for each is placed in layout.js.
+// Four waiting rooms. The furniture for each is placed in layout.js.
 export const MAPS = {
   dmv:{ name:'the DMV', floor:'PLEASE TAKE A NUMBER', sign:'WAIT HERE' },
   dentist:{ name:'the dentist’s office', floor:'PLEASE SILENCE YOUR PHONE', sign:'CHECK IN' },
-  laundromat:{ name:'the laundromat', floor:'NOT RESPONSIBLE FOR LOST SOCKS', sign:'FOLD HERE' }
+  laundromat:{ name:'the laundromat', floor:'NOT RESPONSIBLE FOR LOST SOCKS', sign:'FOLD HERE' },
+  postoffice:{ name:'the post office', floor:'PLEASE WAIT BEHIND THE LINE', sign:'NEXT WINDOW' }
 };
 
 // Things that happen mid-match. The host decides; everyone hears about them as events.
-export const EVENT_KINDS = ['call', 'phone', 'dark'];
+export const EVENT_KINDS = ['call', 'phone', 'dark', 'kid'];
 
 // Three optional errands each match. Finishing one pays extra.
 export const ERRANDS = [
@@ -109,6 +111,7 @@ export const ERRANDS = [
   {id:'notice3', text:'Notice three people', reward:30},
   {id:'blendsave', text:'Use your Penultimate just as someone\u2019s about to notice you', reward:25},
   {id:'dark', text:'Earn 40 Disinterest while the lights are out', reward:25},
+  {id:'kid', text:'Distract a loose kid with a receipt', reward:25},
   {id:'nopoint', text:'Never set foot in the Point', reward:35, end:true},
   {id:'top3', text:'Finish in the top three', reward:35, end:true},
   {id:'courtesy', text:'Leave with all your Courtesy', reward:25, end:true}
